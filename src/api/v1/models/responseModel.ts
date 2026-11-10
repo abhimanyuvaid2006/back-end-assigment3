@@ -2,8 +2,8 @@
  * Interface representing a standard API response
  * @template T - The type of the data property
  */
- interface ApiResponse<T> {
-    status: string; // "success" or "error"
+export interface ApiResponse<T> {
+    status?: string; // "success" or "error"
     data?: T; // Optional data returned in case of success
     message?: string; // Informational message about the result
     error?: string; // Error message in case of failure
@@ -21,9 +21,8 @@ export const successResponse = <T>(
     data?: T,
     message?: string
 ): ApiResponse<T> => ({
-    status: "success",
-    data,
     message,
+    data,
 });
 
 /**

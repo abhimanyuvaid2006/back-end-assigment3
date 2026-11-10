@@ -3,7 +3,7 @@ import { ObjectSchema } from "joi";
 import { MiddlewareFunction } from "../types/express";
 import { HTTP_STATUS } from "../../../constants/httpConstants";
 
-export interface RequestSchemas {
+interface RequestSchemas {
     body?: ObjectSchema;
     params?: ObjectSchema;
     query?: ObjectSchema;
@@ -27,6 +27,7 @@ export const validateRequest = (
     schemas: RequestSchemas,
     options: ValidationOptions = {}
 ): MiddlewareFunction => {
+    // stripParams - Usually don't strip params as they're route-defined
     const defaultOptions = {
         stripBody: true,
         stripQuery: true,
@@ -42,14 +43,12 @@ export const validateRequest = (
              * Validate a specific part of the request against a Joi schema
              * @param validationSchema - Joi schema to validate against
              * @param requestData - The request data to validate
-             * @param requestSectionName - Name of the request part for error prefixing
              * @param shouldStripFields - Whether to strip unknown fields from the validated data
              * @returns The original data if validation fails or stripping is disabled, otherwise the stripped/validated data
              */
             const validatePart = (
                 validationSchema: ObjectSchema,
                 requestData: any,
-                requestSectionName: string,
                 shouldStripFields: boolean
             ) => {
                 const { error, value } = validationSchema.validate(
@@ -62,10 +61,7 @@ export const validateRequest = (
 
                 if (error) {
                     errors.push(
-                        ...error.details.map(
-                            (detail) =>
-                                `${requestSectionName}: ${detail.message}`
-                        )
+                        ...error.details.map((detail) => detail.message)
                     );
                 } else if (shouldStripFields) {
                     return value;
@@ -78,7 +74,6 @@ export const validateRequest = (
                 req.body = validatePart(
                     schemas.body,
                     req.body,
-                    "Body",
                     defaultOptions.stripBody
                 );
             }
@@ -87,7 +82,6 @@ export const validateRequest = (
                 req.params = validatePart(
                     schemas.params,
                     req.params,
-                    "Params",
                     defaultOptions.stripParams
                 );
             }
@@ -96,7 +90,6 @@ export const validateRequest = (
                 req.query = validatePart(
                     schemas.query,
                     req.query,
-                    "Query",
                     defaultOptions.stripQuery
                 );
             }
@@ -104,14 +97,14 @@ export const validateRequest = (
             // If there are any validation errors, return them
             if (errors.length > 0) {
                 return res.status(HTTP_STATUS.BAD_REQUEST).json({
-                    error: `Validation error: ${errors.join(", ")}`,
+                    message: `Validation error: ${errors.join(", ")}`,
                 });
             }
 
             next();
         } catch (error: unknown) {
             res.status(HTTP_STATUS.BAD_REQUEST).json({
-                error: (error as Error).message,
+                message: (error as Error).message,
             });
         }
     };

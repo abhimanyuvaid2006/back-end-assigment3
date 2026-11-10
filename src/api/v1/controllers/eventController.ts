@@ -74,7 +74,7 @@ export const createEvent = async (
 
         const newEvent: Event = await eventService.createEvent(eventData);
         res.status(HTTP_STATUS.CREATED).json(
-            successResponse(newEvent, "Event created successfully")
+            successResponse(newEvent, "Event created ")
         );
     } catch (error: unknown) {
         next(error);

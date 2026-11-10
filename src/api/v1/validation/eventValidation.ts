@@ -1,37 +1,22 @@
 import Joi from "joi";
 
-
 export const eventSchemas = {
     create: {
         body: Joi.object({
-            name: Joi.string().min(3).required().messages({
-                "any.required": "Name is required",
-                "string.empty": "Name cannot be empty",
-            }),
-            date: Joi.string().required().messages({
-                "any.required": "Date is required",
-                "string.empty": "Date cannot be empty",
-            }),
-            capacity: Joi.number().integer().min(5).required().messages({
-                "any.required": "Capacity is required",
-                "number.min": "Capacity must be at least 5",
-            }),
-            registrationCount: Joi.number().integer().min(0).required().messages({
-                    "any.required": "Registration count is required",
-                    "number.min": "Registration count cannot be negative",
-                }),
+            name: Joi.string().min(3).required(),
+            date: Joi.date().iso().greater("now").required(),
+            capacity: Joi.number().integer().min(5).required(),
+            registrationCount: Joi.number()
+                .integer()
+                .min(0)
+                .max(Joi.ref("capacity"))
+                .default(0),
             status: Joi.string()
                 .valid("active", "cancelled", "completed")
-                .required()
-                .messages({
-                    "any.required": "Status is required",
-                }),
+                .default("active"),
             category: Joi.string()
                 .valid("conference", "workshop", "meetup", "seminar", "general")
-                .required()
-                .messages({
-                    "any.required": "Category is required",
-                }),
+                .default("general"),
         }),
     },
 
@@ -52,38 +37,20 @@ export const eventSchemas = {
             }),
         }),
         body: Joi.object({
-            name: Joi.string().min(3).required().messages({
-                "any.required": "Name is required",
-                "string.empty": "Name cannot be empty",
-            }),
-            date: Joi.string().required().messages({
-                "any.required": "Date is required",
-                "string.empty": "Date cannot be empty",
-            }),
-            capacity: Joi.number().integer().min(5).required().messages({
-                "any.required": "Capacity is required",
-                "number.min": "Capacity must be at least 5",
-            }),
+            name: Joi.string().min(3).required(),
+            date: Joi.date().iso().greater("now").required(),
+            capacity: Joi.number().integer().min(5).required(),
             registrationCount: Joi.number()
                 .integer()
                 .min(0)
-                .required()
-                .messages({
-                    "any.required": "Registration count is required",
-                    "number.min": "Registration count cannot be negative",
-                }),
+                .max(Joi.ref("capacity"))
+                .default(0),
             status: Joi.string()
                 .valid("active", "cancelled", "completed")
-                .required()
-                .messages({
-                    "any.required": "Status is required",
-                }),
+                .default("active"),
             category: Joi.string()
                 .valid("conference", "workshop", "meetup", "seminar", "general")
-                .required()
-                .messages({
-                    "any.required": "Category is required",
-                }),
+                .default("general"),
         }),
     },
 
